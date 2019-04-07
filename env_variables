@@ -1,0 +1,11 @@
+## ENV VARIABLES
+# ssh key
+ssh_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC/AHsDGetGc8DiTNFehDCao4sgvH8GgyFB/5ppJ7mDL/GyPIYJYfFWVwz3ZrNPKHX6DEGVb2sNqhs5KzLBJw890XbPM/6bO/ysqRiMdnbdRzCr/lUg013NU5hulxlFeC+RtuxVmQiHSwiAd6waKcHfV4xncc7HR3v+vJUu8u5qspoZdMdjGOeS9GUwO/cw648xMfWxpI+MuTQKQ78KSjj41elhuu0ia/Jti0VujUdo/BNuoLto/As+LruQAjWjM9hfgnTwwhu3J2/lMjJgGJblrtD90pP4ikytIFDcOQn0InLjylaOQOKqTOWrPE8eyd7mBlCRUqOe77RbHYGPeTu7Q/8qmNNLL5Jk/CIIs5F5G+RYoBtmK4IhHGrDw69dbLFuuxKKD9lmPP/qAVLbSlVVmLP/ct67dde43EYYqAUD0r1wnZXhs2bBfkBw7WjLD+MvRlKRFDybxg/pzJepIl67B7e+5NjvNXBnXdAD74GY/CuLfktWN9QPWD9eqbzSU58kBcZ5wzciKFRxHgzcvmXNHavFMYIAEk8wIpJ1roKekXx7vZFEkj8eMDpQ4T1kzNWDkpdQyQxvJLFV6GE+GA+GsJ7PKQiptKpU0x51WO2dR796c/eKRXuwcQVVbT0iSuUH/DFCx6k7aJs8ftos1yjELE4eZ7ymsmHBQZUFHyyNdw== stefan.ltnr@gmail.com"
+# master ip address
+api_addr: 10.0.0.100 #10.0.0.99
+
+### DON'T EDIT VALUES BELOW ###
+# pod network cidr range
+cidr: 10.244.0.0/16
+# k8s cluster join token
+token_file: join_token

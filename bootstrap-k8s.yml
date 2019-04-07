@@ -1,0 +1,4 @@
+---
+- import_playbook: playbooks/prepare-nodes.yml
+- import_playbook: playbooks/init-k8s-cluster.yml
+- import_playbook: playbooks/join-k8s-cluster.yml

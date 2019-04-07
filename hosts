@@ -1,0 +1,9 @@
+[master]
+k8s-master ansible_host=10.0.0.100 ansible_user=root
+
+[worker]
+k8s-worker1 ansible_host=10.0.0.101 ansible_user=root
+k8s-worker2 ansible_host=10.0.0.102 ansible_user=root
+
+#[test]
+# test-centos ansible_host=10.0.0.99 ansible_user=root

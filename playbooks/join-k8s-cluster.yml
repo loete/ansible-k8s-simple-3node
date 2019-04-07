@@ -1,0 +1,27 @@
+---
+
+- hosts: worker
+  become: yes
+  vars_files:
+    - ../env_variables
+  tasks:
+    - name: copy join token to worker node
+      copy:
+        src: ../token_file
+        dest: join_token
+
+    - name: grep kubeadm join
+      shell: "grep -iA 2 'kubeadm join' join_token | tr -d '[=\\\\=]' | tr -d '\n'"
+      register: token
+
+    - name: debug
+      debug:
+        msg: "{{token.stdout}}"
+
+    - name: join cluster
+      shell: "{{ token.stdout }}"
+      register: newtoken
+
+    - name: debug after
+      debug:
+        msg: "{{newtoken.stdout}}"

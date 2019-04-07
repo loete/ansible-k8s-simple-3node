@@ -1,0 +1,35 @@
+---
+
+- hosts: master
+  become: yes
+  vars_files:
+    - ../env_variables
+  tasks:
+    - name: pull images required for setting up a k8s cluster
+      shell: kubeadm config images pull
+
+    - name: init k8s cluster
+      shell: kubeadm init --apiserver-advertise-address {{api_addr}} --pod-network-cidr={{cidr}}
+      register: output
+
+    - name: store generated token
+      local_action: copy content={{ output.stdout }} dest=../token_file
+
+    - name: create ~/.kube
+      file:
+        path: "{{ ansible_env.HOME }}/.kube"
+        state: directory
+        mode: 0755
+        
+    - name: copy admin.conf
+      copy:
+        src: /etc/kubernetes/admin.conf  
+        dest: "{{ ansible_env.HOME }}/.kube/config"
+        owner: "{{ ansible_env.USER }}"
+        group: "{{ ansible_env.USER }}"
+        remote_src: yes
+        mode: 0755
+    
+    - name: install pod network add-on - flannel
+      command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+

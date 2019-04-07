@@ -1,0 +1,147 @@
+- hosts: all
+  become: yes
+  vars_files:
+    - ../env_variables
+  tasks:
+    - name: setup authorized keys
+      authorized_key:
+        user: root
+        state: present
+        key: "{{ ssh_key }}" #"{{ lookup('file', '../files/id_rsa.pub')}}"
+    
+    - name: add all provided hosts to /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.all }}"
+    
+    - name: update yum
+      yum:
+        name: "*"
+        state: latest
+
+    - name: install tools
+      yum:
+        name:
+          - wget
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+    
+    - name: stop disable firewall
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: no
+
+    - name: disable SELinux
+      command: setenforce 0
+
+    - name: disable SELinux on reboot
+      selinux:
+        state: disabled
+
+    - name: enable br_netfilter
+      modprobe:
+        name: br_netfilter
+        state: present
+
+    - name: ensure net.bridge.bridge-nf-call-ip6tables is set to 1
+      sysctl:
+        name: net.bridge.bridge-nf-call-ip6tables
+        value: 1
+        state: present
+
+    - name: ensure net.bridge.bridge-nf-call-iptables is set to 1
+      sysctl:
+        name: net.bridge.bridge-nf-call-iptables
+        value: 1
+        state: present
+
+    - name: Remove swapfile from /etc/fstab
+      mount:
+        name: "{{ item }}"
+        fstype: swap
+        state: absent
+      with_items:
+        - swap
+        - none
+
+    - name: Disable swap
+      command: swapoff -a
+      when: ansible_swaptotal_mb > 0
+
+    - name: Add Docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docer-ce.repo
+        mode: 0644
+
+    - name: add Kubernetes' YUM repository
+      yum_repository:
+        name: Kubernetes
+        description: Kubernetes YUM repository
+        baseurl: https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+        gpgkey: https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+        gpgcheck: yes
+
+    - name: Install Docker and Kubernetes
+      yum:
+        name: 
+          - docker-ce
+          - kubelet
+          - kubeadm
+          - kubectl
+        state: present
+        update_cache: true
+
+    - name: Start and Enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      
+    - name: Start and Enable kubelet service
+      service:
+        name: kubelet
+        state: started
+        enabled: yes
+
+    # cgroups - https://kubernetes.io/docs/setup/cri/
+    - name: setup daemon.json
+      blockinfile:
+        path: /etc/docker/daemon.json
+        create: yes
+        marker: ""
+        block: |
+          {
+            "exec-opts": ["native.cgroupdriver=systemd"],
+            "log-driver": "json-file",
+            "log-opts": {
+              "max-size": "100m"
+            },
+            "storage-driver": "overlay2",
+            "storage-opts": [
+              "overlay2.override_kernel_check=true"
+            ]
+          }
+
+    - name: create docker.service.d
+      file:
+          path: /etc/systemd/system/docker.service.d
+          state: directory
+
+    - name: reload daemons
+      systemd:
+        daemon_reload: yes
+
+    - name: restart docker service
+      service:
+        name: docker
+        state: restarted
+
+    
