@@ -24,7 +24,7 @@ ssh_key: "ssh-rsa YOUR PUBLIC KEY"
 ## Run playbook
 Execute the playbook with the following command
 ```
-sudo ansible-playbook -i hosts bootstrap-nodes.yml --ask-pass
+sudo ansible-playbook -i hosts bootstrap-k8s.yml --ask-pass
 ``` 
 ## Verify installation
 Execute the following commands on the master node to verify a successful installation
