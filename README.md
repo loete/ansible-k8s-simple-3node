@@ -33,7 +33,7 @@ Execute the following commands on the master node to verify a successful install
 Kubernetes master is running at https://10.0.0.100:6443
 KubeDNS is running at https://10.0.0.100:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
 ```
-- `kubectl get nodes
+- `kubectl get nodes`
 ```
 NAME          STATUS   ROLES    AGE   VERSION
 k8s-master    Ready    master   16m   v1.14.0
